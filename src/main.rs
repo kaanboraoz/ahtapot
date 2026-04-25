@@ -4,7 +4,7 @@ use std::{
 };
 
 use clap::Parser;
-use image::{DynamicImage, ImageError, ImageReader};
+use image::{DynamicImage, ImageError, ImageReader, imageops};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -39,17 +39,25 @@ impl Args {
     }
 }
 
-struct ImageProcessor<'a> {
-    path: &'a Path,
+struct ImageProcessor {
+    img: DynamicImage,
 }
 
-impl<'a> ImageProcessor<'a> {
-    fn new(path: &'a Path) -> Self {
-        Self { path }
+impl ImageProcessor {
+    fn new(path: &Path) -> Result<Self, ImageError> {
+        let img = ImageReader::open(path)?.decode()?;
+
+        Ok(Self { img })
     }
 
-    fn open(&self) -> Result<DynamicImage, ImageError> {
-        ImageReader::open(&self.path)?.decode()
+    fn resize(mut self) -> Result<ImageProcessor, ImageError> {
+        self.img = self.img.resize(100, 100, imageops::FilterType::CatmullRom);
+
+        Ok(self)
+    }
+
+    fn save(&self) -> Result<(), ImageError> {
+        Ok(self.img.save("/images")?)
     }
 }
 
@@ -58,11 +66,16 @@ fn main() -> Result<(), ImageError> {
 
     let my_dir = args.get_dir()?;
 
-    let img = ImageProcessor::new(my_dir[0].as_path()).open()?;
+    if my_dir.is_empty() {
+        return Err(ImageError::IoError(std::io::Error::new(
+            std::io::ErrorKind::InvalidFilename,
+            "oh no",
+        )));
+    }
 
-    let nimg = img.resize(200, 200, image::imageops::FilterType::Nearest);
-
-    let _ = nimg.save("./images/new2.png");
+    for i in my_dir {
+        ImageProcessor::new(i.as_path())?.resize()?.save()?;
+    }
 
     Ok(())
 }
