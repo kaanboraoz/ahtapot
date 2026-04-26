@@ -22,7 +22,7 @@ aht --path ./images --name photo --width 800 --height 600 --locate ./output
 | `--name` | `-n` | Base name for output files |
 | `--width` | `-w` | Target width in pixels |
 | `--height` | `-e` | Target height in pixels |
-| `--locate` | `-l` | Output directory for processed images |
+| `--output` | `-o` | Output directory for processed images |
 
 ## Installation
 

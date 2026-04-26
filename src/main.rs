@@ -29,7 +29,7 @@ struct Args {
     height: u32,
 
     #[arg(short, long)]
-    locate: PathBuf,
+    output: PathBuf,
 }
 
 impl Args {
@@ -37,16 +37,16 @@ impl Args {
         Self::parse()
     }
 
-    fn get_dir(&self) -> Result<Vec<PathBuf>, ImageError> {
+    fn get_dir(&self) -> Result<Vec<PathBuf>, std::io::Error> {
         let dir = fs::read_dir(&Path::new(&self.path))?
             .map(|res| res.map(|e| e.path()))
             .collect::<Result<Vec<_>, std::io::Error>>()?;
 
         if dir.is_empty() {
-            return Err(ImageError::IoError(std::io::Error::new(
-                std::io::ErrorKind::NotFound,
-                "No such file or directory",
-            )));
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Input directory is empty. Nothing to process.",
+            ));
         }
 
         Ok(dir)
@@ -72,15 +72,15 @@ impl ImageProcessor {
         Ok(self)
     }
 
-    fn save(&self, locate: &Path, name: &str) -> Result<(), ImageError> {
+    fn save(&self, output: &Path, name: &str) -> Result<(), ImageError> {
         let mut save_path = PathBuf::new();
 
-        if !(locate.is_dir()) {
-            fs::create_dir_all(locate)?
+        if !(output.is_dir()) {
+            fs::create_dir_all(output)?
         }
 
-        save_path.push(locate);
-        save_path.push(Path::new(name).with_added_extension("png"));
+        save_path.push(output);
+        save_path.push(Path::new(name).with_extension("png"));
 
         Ok(self.img.save(save_path)?)
     }
@@ -90,11 +90,15 @@ fn main() -> Result<(), ImageError> {
     let args: Args = Args::new();
 
     for (i, path) in args.get_dir()?.iter().enumerate() {
+        if !path.is_file() {
+            continue;
+        }
+
         let name = format!("{}{}", args.name, i);
 
         ImageProcessor::new(&path)?
             .resize(args.width, args.height)?
-            .save(&args.locate, &name)?;
+            .save(&args.output, &name)?;
     }
 
     Ok(())
