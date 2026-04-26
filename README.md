@@ -13,7 +13,7 @@
 ## Usage
 
 ```bash
-aht --path ./images --name photo --width 800 --height 600 --locate ./output
+aht --path ./images --name photo --width 800 --height 600 --output ./output
 ```
 
 | Flag | Short | Description |

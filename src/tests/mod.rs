@@ -8,7 +8,7 @@ mod tests {
         let args: Args = Args {
             width: 10,
             height: 10,
-            locate: PathBuf::new(),
+            output: PathBuf::new(),
             name: String::from("test-empty"),
             path: String::from("test-empty"),
         };
@@ -22,7 +22,7 @@ mod tests {
         let args = Args {
             width: 10,
             height: 10,
-            locate: PathBuf::new(),
+            output: PathBuf::new(),
             name: String::from("test-empty"),
             path: String::from("test-empty"),
         };

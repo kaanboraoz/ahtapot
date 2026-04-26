@@ -53,11 +53,11 @@ impl Args {
     }
 }
 
-struct ImageProcessor {
+struct Image {
     img: DynamicImage,
 }
 
-impl ImageProcessor {
+impl Image {
     fn new(path: &Path) -> Result<Self, ImageError> {
         let img = ImageReader::open(path)?.decode()?;
 
@@ -96,7 +96,7 @@ fn main() -> Result<(), ImageError> {
 
         let name = format!("{}{}", args.name, i);
 
-        ImageProcessor::new(&path)?
+        Image::new(&path)?
             .resize(args.width, args.height)?
             .save(&args.output, &name)?;
     }
