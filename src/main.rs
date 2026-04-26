@@ -1,3 +1,5 @@
+mod tests;
+
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -85,7 +87,7 @@ impl ImageProcessor {
 }
 
 fn main() -> Result<(), ImageError> {
-    let mut args: Args = Args::new();
+    let args: Args = Args::new();
 
     for (i, path) in args.get_dir()?.iter().enumerate() {
         let name = format!("{}{}", args.name, i);
